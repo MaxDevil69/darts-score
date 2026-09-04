@@ -2,9 +2,9 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const GAME_TYPES={x301:{label:'301',desc:'X01 classique'},x501:{label:'501',desc:'X01 standard'},x701:{label:'701',desc:'Longue partie'},x301k:{label:'301 Killer',desc:'Même volée = retour au départ'},x501k:{label:'501 Killer',desc:'Même volée = retour au départ'},x701k:{label:'701 Killer',desc:'Même volée = retour au départ'},cricket:{label:'Cricket',desc:'15–20 + Bull'},shanghai:{label:'Shanghai',desc:'20 manches · Tout sur la cible'},training:{label:'Entraînement',desc:'Cibles, scores et checkouts'}};
 const OUTS={170:'T20 T20 Bull',167:'T20 T19 Bull',164:'T20 T18 Bull',161:'T20 T17 Bull',160:'T20 D20',158:'T20 D19',157:'T19 D20',156:'T20 D18',155:'T19 D19',154:'T18 D20',153:'T19 D18',152:'T20 D16',151:'T17 D20',150:'T20 D15',149:'T19 D16',148:'T20 D14',147:'T17 D18',146:'T18 D16',145:'T19 D14',144:'T20 D12',143:'T17 D16',142:'T18 D14',141:'T19 D12',140:'T20 D10',139:'T13 D20',138:'T18 D12',137:'T19 D10',136:'T20 D8',135:'Bull T15 D20',134:'T14 D16',133:'T19 D8',132:'Bull T14 D20',131:'T13 D16',130:'T20 D5',129:'T19 D12',128:'T18 D16',127:'T17 D8',126:'T19 D6',125:'Bull T17 D12',124:'T16 D8',123:'T19 D6',122:'T18 D7',121:'T11 D14',120:'T20 S20 D20',119:'T19 T12 D13',118:'T20 S18 D20',117:'T20 S17 D20',116:'T20 S16 D20',115:'T20 S15 D20',114:'T20 S14 D20',113:'T20 S13 D20',112:'T20 S12 D20',111:'T20 S11 D20',110:'T20 S10 D20',109:'T20 S9 D20',108:'T20 S16 D16',107:'T19 S18 D16',106:'T20 S14 D16',105:'T19 S16 D16',104:'T18 S18 D16',103:'T20 S3 D20',102:'T20 S10 D16',101:'T20 S1 D20',100:'T20 D20',99:'T19 S10 D20',98:'T20 D19',97:'T19 D20',96:'T20 D18',95:'T19 D19',94:'T18 D20',93:'T19 D18',92:'T20 D16',91:'T17 D20',90:'T18 D18',89:'T19 D16',88:'T16 D20',87:'T17 D18',86:'T18 D16',85:'T15 D20',84:'T20 D12',83:'T17 D16',82:'Bull D19',81:'T19 D12',80:'T20 D10',79:'T19 D11',78:'T18 D12',77:'T19 D10',76:'T20 D8',75:'T17 D12',74:'T14 D16',73:'T19 D8',72:'T16 D12',71:'T13 D16',70:'T18 D8',69:'T19 D6',68:'T20 D4',67:'T17 D8',66:'T10 D18',65:'T19 D4',64:'T16 D8',63:'T13 D12',62:'T10 D16',61:'T15 D8',60:'S20 D20',59:'S19 D20',58:'S18 D20',57:'S17 D20',56:'S16 D20',55:'S15 D20',54:'S14 D20',53:'S13 D20',52:'S12 D20',51:'S11 D20',50:'Bull',49:'S9 D20',48:'S8 D20',47:'S7 D20',46:'S6 D20',45:'S5 D20',44:'S4 D20',43:'S3 D20',42:'S10 D16',41:'S9 D16',40:'D20',39:'S7 D16',38:'D19',37:'S5 D16',36:'D18',35:'S3 D16',34:'D17',33:'S1 D16',32:'D16',31:'S7 D12',30:'D15',29:'S13 D8',28:'D14',27:'S11 D8',26:'D13',25:'S9 D8',24:'D12',23:'S7 D8',22:'D11',21:'S5 D8',20:'D10',19:'S3 D8',18:'D9',17:'S1 D8',16:'D8',15:'S7 D4',14:'D7',13:'S5 D4',12:'D6',11:'S3 D4',10:'D5',9:'S1 D4',8:'D4',7:'S3 D2',6:'D3',5:'S1 D2',4:'D2',3:'S1 D1',2:'D1'};
 
-let S=JSON.parse(localStorage.getItem('dartsScoreV9')||'null');
+let S=JSON.parse(localStorage.getItem('dartsScoreV12')||'null');
 let mult=1, undoStack=[], deferred=null, setupType='x501', finish='double', starterSeed=null, playerMode='multi', autoTimer=null;
-function save(){localStorage.setItem('dartsScoreV9',JSON.stringify(S))}
+function save(){localStorage.setItem('dartsScoreV12',JSON.stringify(S))}
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function typeLabel(){return GAME_TYPES[S.type]?.label||S.type}
 function isX(){return !!S?.type?.startsWith('x')}
@@ -52,18 +52,19 @@ function addDart(v){
 }
 function canFinishCurrentTurn(){
  if(!S||!isX()||S.finished||!S.dartsInTurn.length)return false;
- const p=S.players[S.active];
- const ds=S.dartsInTurn;
- let counted=ds.reduce((a,d)=>a+dartValue(d),0);
+ const p=S.players[S.active], ds=S.dartsInTurn;
+ let counted=0, startedNow=p.started, startIdx=0;
  if(S.doubleIn&&!p.started){
    const idx=ds.findIndex(d=>d.m===2||d.m===25);
    if(idx<0)return false;
-   counted=ds.slice(idx).reduce((a,d)=>a+dartValue(d),0);
+   startedNow=true; startIdx=idx;
  }
+ counted=ds.slice(startIdx).reduce((a,d)=>a+dartValue(d),0);
  const after=p.score-counted;
  if(after!==0)return false;
  const last=ds[ds.length-1];
- return S.finish==='single'||!!(last&&(last.m===2||last.m===25));
+ if(S.finish==='single')return true;
+ return !!last&&(last.m===2||last.m===25);
 }
 function undo(){if(!undoStack.length){toast('Rien à annuler');return}S=JSON.parse(undoStack.pop());save();render();toast('Dernière volée annulée')}
 function clearTurn(){if(!S)return;if(S.dartsInTurn.length){S.dartsInTurn=[];save();render();toast('Volée en cours effacée');return}undo()}
@@ -74,9 +75,9 @@ function oneDartFinish(score){return score>=2&&score<=40&&score%2===0}
 function playX01(p,ds,total){
  const before=p.score;let counted=total;
  if(S.doubleIn&&!p.started){const idx=ds.findIndex(d=>d.m===2||d.m===25);if(idx<0){p.lastTurnScore=0;log(`${p.name} — ${ds.map(d=>d.label).join(' ')} = 0 (Double In non atteint)`);return}p.started=true;counted=ds.slice(idx).reduce((a,d)=>a+dartValue(d),0)}
- const after=before-counted;const last=ds[ds.length-1];const validFinish=finish==='single'||(last&&(last.m===2||last.m===25));const bust=after<0||(finish==='double'&&after===1)||(after===0&&!validFinish);
+ const after=before-counted;const last=ds[ds.length-1];const modeFinish=S.finish||finish;const validFinish=modeFinish==='single'||(last&&(last.m===2||last.m===25));const bust=after<0||(modeFinish==='double'&&after===1)||(after===0&&!validFinish);
  const effective=bust?0:counted;const prevIdx=(S.active-1+S.players.length)%S.players.length;const prev=S.players[prevIdx];
- const killerZeroBlocked=effective===0&&prev.score>0&&finish==='double'&&oneDartFinish(prev.score);
+ const killerZeroBlocked=effective===0&&prev.score>0&&modeFinish==='double'&&oneDartFinish(prev.score);
  if(isKiller()&&S.players.length>1&&prev!==p&&prev.lastTurnScore!==null&&prev.lastTurnScore===effective&&!killerZeroBlocked){prev.score=S.baseScore;if(S.doubleIn)prev.started=false;log(`💥 KILLER ! ${p.name} fait ${effective} comme ${prev.name} → ${prev.name} revient à ${S.baseScore}`)}
  p.lastTurnScore=effective;
  if(bust){p.busts++;p.score=before;log(`${p.name} — BUST (${counted}) → ${before}`);return}
@@ -97,7 +98,7 @@ function checkoutRecommendation(score){
  for(let v=1;v<=20;v++){darts.push({v,m:1,label:`S${v}`,value:v});darts.push({v,m:2,label:`D${v}`,value:v*2});darts.push({v,m:3,label:`T${v}`,value:v*3})}
  darts.push({v:25,m:25,label:'Bull',value:25});
  const candidates=[];
- const add=(arr)=>{const sum=arr.reduce((a,d)=>a+d.value,0);if(sum!==score)return;const last=arr[arr.length-1];if(finish==='double'&&(last.m!==2&&last.m!==25))return;candidates.push(arr)};
+ const add=(arr)=>{const sum=arr.reduce((a,d)=>a+d.value,0);if(sum!==score)return;const last=arr[arr.length-1];if((S.finish||finish)==='double'&&(last.m!==2&&last.m!==25))return;candidates.push(arr)};
  for(const a of darts)add([a]);
  for(const a of darts)for(const b of darts)add([a,b]);
  for(const a of darts)for(const b of darts)for(const c of darts)add([a,b,c]);
@@ -111,7 +112,7 @@ function checkoutRecommendation(score){
  });
  return candidates[0].map(d=>d.label).join(' → ');
 }
-function render(){if(!S)return;showMain();$('#mode').textContent=typeLabel();$('#round').textContent=S.type==='shanghai'?`Manche ${S.target}/20`:S.type==='training'?'Entraînement':`Tour ${S.round}`;$('#activeName').textContent=S.players[S.active]?.name||'';const ap=S.players[S.active];$('#checkout').textContent=isX()?(checkoutRecommendation(ap.score)||''):' ';$('#target').textContent=S.type==='shanghai'?`Manche ${S.target} — Tout sur le ${S.target}`:isX()?`${S.doubleIn?'Double In · ':''}${S.finish==='double'?'Double Out':'Simple Out'} · ${S.legsToWin} legs / ${S.setsToWin} sets${isKiller()?' · 🔥 Killer':''}`:S.type==='training'?`Cible : ${S.trainingTarget||randomTrainingTarget()}`:'';$('#players').innerHTML=S.players.map((p,i)=>`<div class="player ${i===S.active?'active':''}"><div class="name">${escapeHtml(p.name)} ${i===S.starter&&S.players.length>1?'🎯':''}</div><div class="score ${S.type==='cricket'?'small':''}">${p.score}</div><div class="player-meta"><span>${p.turns} volées</span><span>${p.darts?((p.total/p.darts)*3).toFixed(1):'0.0'} /3</span></div>${isX()?`<div class="muted" style="margin-top:6px">${p.setWins} set · ${p.legWins} leg · ${p.busts} bust${S.doubleIn&&!p.started?' · Double In à faire':''}</div>`:''}${S.type==='cricket'?cricketMarks(p):''}</div>`).join('');$('#darts').innerHTML=S.dartsInTurn.map((d,i)=>`<span class="chip">${i+1}. ${d.label}</span>`).join('');$('#log').innerHTML=S.log.map(x=>`<div>${escapeHtml(x)}</div>`).join('');$('#hint').innerHTML=hint();$('#undo').disabled=!undoStack.length;renderStats();save()}
+function render(){if(!S)return;showMain();$('#mode').textContent=typeLabel();$('#round').textContent=S.type==='shanghai'?`Manche ${S.target}/20`:S.type==='training'?'Entraînement':`Tour ${S.round}`;$('#activeName').textContent=S.players[S.active]?.name||'';const ap=S.players[S.active];$('#checkout').textContent=isX()?(checkoutRecommendation(ap.score)||''):' ';$('#target').textContent=S.type==='shanghai'?`Manche ${S.target} — Tout sur le ${S.target}`:isX()?`${S.doubleIn?'Double In · ':''}${S.finish==='double'?'Double Out':'Simple Out'} · ${S.legsToWin} legs / ${S.setsToWin} sets${isKiller()?' · 🔥 Killer':''}`:S.type==='training'?`Cible : ${S.trainingTarget||randomTrainingTarget()}`:'';$('#scoreStrip').innerHTML=S.players.map((p,i)=>`<div class="score-mini ${i===S.active?'active':''}"><div class="mini-name">${escapeHtml(p.name)}</div><div class="mini-score">${p.score}</div><div class="mini-turn">${i===S.active?'🎯 À toi':''}</div></div>`).join('');$('#players').innerHTML=S.players.map((p,i)=>`<div class="player ${i===S.active?'active':''}"><div class="name">${escapeHtml(p.name)} ${i===S.starter&&S.players.length>1?'🎯':''}</div><div class="score ${S.type==='cricket'?'small':''}">${p.score}</div><div class="player-meta"><span>${p.turns} volées</span><span>${p.darts?((p.total/p.darts)*3).toFixed(1):'0.0'} /3</span></div>${isX()?`<div class="muted" style="margin-top:6px">${p.setWins} set · ${p.legWins} leg · ${p.busts} bust${S.doubleIn&&!p.started?' · Double In à faire':''}</div>`:''}${S.type==='cricket'?cricketMarks(p):''}</div>`).join('');$('#darts').innerHTML=S.dartsInTurn.map((d,i)=>`<span class="chip">${i+1}. ${d.label}</span>`).join('');$('#log').innerHTML=S.log.map(x=>`<div>${escapeHtml(x)}</div>`).join('');$('#hint').innerHTML=hint();$('#undo').disabled=!undoStack.length;renderStats();save()}
 function cricketMarks(p){return`<div class="marks">${[20,19,18,17,16,15,25].map(n=>`<div class="mark"><b>${n===25?'B':n}</b><div class="hits">${p.marks[n]>=3?'✕✕✕':p.marks[n]===2?'✕✕':p.marks[n]===1?'✕':'·'}</div></div>`).join('')}</div>`}
 function hint(){if(isX()){if(S.doubleIn&&!S.players[S.active].started)return`🎯 Double In : les fléchettes avant le premier double/Bull sont perdues. Dès le double touché, les suivantes comptent. · Passage automatique après 3 fléchettes.`;return isKiller()?`🔥 Killer : si le joueur suivant fait exactement ${S.players[S.active].lastTurnScore??'le même score'}, son adversaire revient à ${S.baseScore}.`: `Checkout conseillé : ${checkoutRecommendation(S.players[S.active].score)||'—'} · Passage automatique après 3 fléchettes.`}if(S.type==='cricket')return'Ferme 15, 16, 17, 18, 19, 20 et Bull avec 3 marques. Les points supplémentaires comptent tant qu’un adversaire n’a pas fermé la cible.';if(S.type==='shanghai')return`Manche ${S.target} – Tout sur le ${S.target}. Shanghai = simple + double + triple dans la même volée.`;return`🎯 Cible ${S.trainingTarget||'—'} · travaille la régularité et les checkouts.`}
 function renderStats(){const ps=S.players,totalD=ps.reduce((a,p)=>a+p.darts,0),totalT=ps.reduce((a,p)=>a+p.turns,0),points=ps.reduce((a,p)=>a+p.total,0),best=Math.max(...ps.map(p=>p.darts?(p.total/p.darts)*3:0));$('#kpis').innerHTML=`<div class="kpi"><span class="muted">Volées</span><b>${totalT}</b></div><div class="kpi"><span class="muted">Fléchettes</span><b>${totalD}</b></div><div class="kpi"><span class="muted">Points lancés</span><b>${points}</b></div><div class="kpi"><span class="muted">Meilleure moyenne</span><b>${best.toFixed(1)}</b></div>`;$('#statTable').innerHTML=`<table class="table"><thead><tr><th>Joueur</th><th>Moy./3</th><th>Flèches</th><th>Volées</th><th>Max</th><th>Bust</th><th>Checkouts</th></tr></thead><tbody>${ps.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${p.darts?((p.total/p.darts)*3).toFixed(1):'0.0'}</td><td>${p.darts}</td><td>${p.turns}</td><td>${p.highestTurn}</td><td>${p.busts}</td><td>${p.checkouts}</td></tr>`).join('')}</tbody></table>`}
@@ -120,12 +121,13 @@ function exportGame(){const a=document.createElement('a');a.href=URL.createObjec
 function init(){renderSetup();if(S&&!S.finished){$('#resumeGame').classList.remove('hide');$('#resumeGame').onclick=()=>{showMain();render()}}}
 $('#gameTypes').onclick=e=>{const b=e.target.closest('[data-type]');if(!b)return;setupType=b.dataset.type;renderSetup()};$('#addPlayer').onclick=()=>addPlayerRow('');$('#playerEditor').onclick=e=>{if(e.target.matches('button'))refreshPlaceholders()};
 $$('[data-finish]').forEach(b=>b.onclick=()=>{$$('[data-finish]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');finish=b.dataset.finish});
+$$('[data-in]').forEach(b=>b.onclick=()=>{$$('[data-in]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#doubleIn').classList.toggle('selected',b.dataset.in==='double');$('#straightIn').classList.toggle('selected',b.dataset.in==='straight');});
 $$('[data-in]').forEach(b=>b.onclick=()=>{$$('[data-in]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
 $$('[data-mode]').forEach(b=>b.onclick=()=>{playerMode=b.dataset.mode;$$('[data-mode]').forEach(x=>x.classList.toggle('selected',x.dataset.mode===playerMode));renderSetup()});
 $('#startGame').onclick=()=>{let names=selectedNames();if(soloSelected())names=names.slice(0,1);if(!names.length){toast('Ajoute au moins 1 joueur');return}if(!soloSelected()&&names.length<2){toast('Ajoute au moins 2 joueurs ou choisis Jeu solo');return}newState(setupType,names)};
 $('#newFromGame').onclick=showSetup;$('#again').onclick=()=>{const names=S.players.map(p=>p.name),type=S.type;closeFinish();newState(type,names)};$('#changeGame').onclick=showSetup;$('#clear').onclick=clearTurn;$('#undo').onclick=undo;
 $('#nums').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)addDart(+b.dataset.v)});$('#mult').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;$$('#mult [data-m]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');mult=+b.dataset.m});
 $$('[data-tab]').forEach(b=>b.onclick=()=>{$$('[data-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');['game','stats','settings'].forEach(x=>$('#'+x).classList.toggle('hide',x!==b.dataset.tab))});
-$('#export').onclick=exportGame;$('#resetData').onclick=()=>{if(confirm('Supprimer la partie sauvegardée ?')){localStorage.removeItem('dartsScoreV9');S=null;location.reload()}};
+$('#export').onclick=exportGame;$('#resetData').onclick=()=>{if(confirm('Supprimer la partie sauvegardée ?')){localStorage.removeItem('dartsScoreV12');S=null;location.reload()}};
 $('#nums').innerHTML=Array.from({length:20},(_,i)=>`<button data-v="${i+1}">${i+1}</button>`).join('')+'<button data-v="25">25</button><button data-v="0">Miss</button>';
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').classList.remove('hide')});$('#install').onclick=async()=>{if(deferred){deferred.prompt();deferred=null}};if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});init();
