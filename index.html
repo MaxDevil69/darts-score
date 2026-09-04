@@ -1,61 +1,31 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1017">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon.svg">
-<title>Darts Score V12</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1117"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon.svg">
+<title>🎯 Darts Score</title>
 <style>
-:root{--bg:#090d13;--card:#121923;--card2:#0e151e;--line:#263443;--text:#f5f7fa;--muted:#91a0b1;--accent:#67dcff;--accent2:#1d3d4a;--danger:#5b2931;--ok:#1f5a45;--shadow:0 10px 30px rgba(0,0,0,.22)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{border:1px solid var(--line);border-radius:13px;background:#1a2430;color:var(--text);padding:12px;touch-action:manipulation;cursor:pointer}button:active{transform:scale(.98)}button.primary{background:var(--accent);border-color:var(--accent);color:#061117;font-weight:850}.danger{background:var(--danger)}.ghost{background:transparent}.ok{background:var(--ok)}.app{max-width:1050px;margin:auto;padding:12px 12px 32px}.head{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 14px}.brand{font-size:22px;font-weight:900}.muted{color:var(--muted);font-size:12px}.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button{white-space:nowrap}.tabs button.active{outline:2px solid var(--accent);background:var(--accent2)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}.hide{display:none!important}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.between{display:flex;justify-content:space-between;gap:10px;align-items:center}.section-title{font-size:17px;font-weight:850;margin:0 0 10px}.setup{min-height:70vh;display:flex;align-items:center;justify-content:center}.setup-card{width:100%;max-width:780px}.game-types{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.game-type{text-align:left;min-height:92px;background:var(--card2)}.game-type.selected{outline:2px solid var(--accent);background:var(--accent2)}.game-type strong{display:block;font-size:18px;margin-bottom:5px}.game-type span{color:var(--muted);font-size:12px}.players-edit{display:grid;gap:8px}.player-edit{display:flex;gap:7px}.player-edit input{flex:1}.player-edit button{width:48px}.add-player{width:100%;border-style:dashed}.options{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.option{background:var(--card2);text-align:left}.option.selected{outline:2px solid var(--accent);background:var(--accent2)}.option strong{display:block}.option small{color:var(--muted)}label{display:block;color:var(--muted);font-size:12px;margin:10px 0 4px}input,select{width:100%;background:#0b121a;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:11px}.players{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.player{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:12px}.player.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent2)}.name{font-weight:850}.score{font-size:48px;font-weight:950;line-height:1.05;margin:4px 0}.score.small{font-size:34px}.player-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.marks{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}.mark{background:#101923;border:1px solid var(--line);border-radius:8px;padding:5px 2px;text-align:center;font-size:11px}.mark b{display:block;font-size:12px}.mark .hits{font-size:16px;margin-top:2px}.turn{position:sticky;bottom:8px}.darts{display:flex;gap:7px;min-height:38px;flex-wrap:wrap;margin:9px 0}.chip{background:#263746;border-radius:999px;padding:8px 11px}.mult{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:7px}.mult button.selected{outline:2px solid var(--accent);background:var(--accent2)}.nums{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.nums button{padding:14px 4px;font-weight:800}.actions{display:flex;gap:7px;margin-top:9px}.actions>*{flex:1}.hint{margin-top:8px;padding:9px 10px;border-radius:10px;background:#0e1720;color:var(--muted);font-size:12px}.checkout{font-weight:850;color:var(--accent);text-align:right}.log{max-height:220px;overflow:auto}.log div{padding:7px 0;border-bottom:1px solid #202c39;font-size:12px}.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.kpi{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px}.kpi b{display:block;font-size:22px;margin-top:3px}.table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{text-align:left;padding:9px 5px;border-bottom:1px solid var(--line)}.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-card{width:100%;max-width:560px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.5)}.winner{font-size:32px;font-weight:950;margin:5px 0 14px}.result-list{display:grid;gap:7px;margin:12px 0}.result{display:flex;justify-content:space-between;background:var(--card2);padding:10px;border-radius:10px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#e8f7ff;color:#071118;padding:10px 14px;border-radius:999px;font-weight:750;display:none;z-index:30}
-@media(min-width:700px){.players{grid-template-columns:repeat(4,1fr)}.nums{grid-template-columns:repeat(10,1fr)}.kpis{grid-template-columns:repeat(4,1fr)}.game-types{grid-template-columns:repeat(5,1fr)}}
-
-.score-strip{position:sticky;top:0;z-index:12;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;background:var(--bg);padding:5px 0 7px;margin-bottom:4px}
-.score-mini{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:5px 6px;text-align:center;min-width:0}
-.score-mini.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent2)}
-.score-mini .mini-name{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.score-mini .mini-score{font-size:23px;font-weight:950;line-height:1.05}
-.score-mini .mini-turn{font-size:9px;color:var(--muted)}
-@media(max-width:699px){.app{padding-top:4px}.score-strip{top:0}.players{grid-template-columns:repeat(2,1fr)}.players .score{font-size:38px}.players .player-meta{font-size:10px}.turn{bottom:0;border-radius:16px 16px 0 0;margin-bottom:0;padding-bottom:calc(14px + env(safe-area-inset-bottom))}.nums button{padding:13px 3px}.mult button{padding:10px 5px}}
-</style>
-</head>
-<body>
-<div class="app">
-<header class="head"><div><div class="brand">🎯 Darts Score</div><div class="muted">Compteur de fléchettes</div></div><button id="install" class="hide">＋ Installer</button></header>
-<div id="setup" class="setup"><div class="card setup-card">
-<h1 class="section-title">Nouvelle partie</h1><div class="muted" style="margin-bottom:12px">Choisis le type de partie puis ajoute les joueurs.</div>
-<div id="gameTypes" class="game-types"></div>
-<h3>Mode joueurs</h3>
-<div class="options" style="margin-bottom:10px">
-<button class="option selected" data-mode="multi"><strong>👥 Plusieurs joueurs</strong><small>De 2 à 4 joueurs</small></button>
-<button class="option" id="solo" data-mode="solo"><strong>👤 Jeu solo</strong><small>Un seul joueur, sans adversaire</small></button>
-</div>
-<h3>Joueurs</h3><div id="playerEditor" class="players-edit"></div><button id="addPlayer" class="add-player">＋ Ajouter un joueur</button>
-<div id="x01Options" class="hide"><h3>Options X01</h3><div class="options"><button class="option selected" data-finish="double"><strong>Double Out</strong><small>La dernière fléchette doit être un double ou Bull.</small></button><button class="option" data-finish="single"><strong>Simple Out</strong><small>Fin de partie dès que le score atteint 0.</small></button></div>
-<div class="options" style="margin-top:9px">
-<button class="option selected" id="straightIn" data-in="straight"><strong>Straight In</strong><small>Les points comptent dès la première fléchette.</small></button>
-<button class="option" id="doubleIn" data-in="double"><strong>Double In</strong><small>Il faut toucher un double ou Bull pour commencer à compter.</small></button>
-</div>
-<label>Legs pour gagner</label><select id="legsToWin"><option value="1">1 leg</option><option value="2">2 legs</option><option value="3" selected>3 legs</option><option value="4">4 legs</option><option value="5">5 legs</option></select><label>Sets pour gagner</label><select id="setsToWin"><option value="1" selected>1 set</option><option value="2">2 sets</option><option value="3">3 sets</option><option value="4">4 sets</option><option value="5">5 sets</option></select></div>
-<div class="actions"><button id="startGame" class="primary">🎯 Lancer la partie</button><button id="resumeGame" class="ghost hide">Reprendre la partie</button></div>
-</div></div>
-
-<div id="main" class="hide">
+*{box-sizing:border-box}body{margin:0;background:#0b1017;color:#f5f7fa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{border:0;border-radius:13px;background:#202b39;color:#fff;padding:12px;touch-action:manipulation}.app{max-width:900px;margin:auto;padding:12px 12px 28px}.head{display:flex;justify-content:space-between;align-items:center;padding:8px 2px 14px}.title{font-size:21px;font-weight:850}.muted{color:#98a5b4;font-size:12px}.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button.active{outline:2px solid #61d7ff;background:#193342}.card{background:#141c26;border:1px solid #2a3745;border-radius:18px;padding:14px;margin-bottom:10px}.players{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.player{background:#0f151d;border:1px solid #2a3745;border-radius:16px;padding:12px}.player.active{border-color:#61d7ff}.name{font-weight:800}.score{font-size:52px;font-weight:900;line-height:1.05;margin:5px 0}.stats{display:flex;justify-content:space-between;color:#98a5b4;font-size:11px}.turn{margin-top:10px}.darts{display:flex;gap:7px;min-height:38px;flex-wrap:wrap;margin:9px 0}.chip{background:#293746;border-radius:999px;padding:8px 11px}.mult{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:7px}.mult .sel{outline:2px solid #61d7ff}.nums{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.nums button{padding:13px 5px;font-weight:750}.actions{display:flex;gap:7px;margin-top:9px}.actions>*{flex:1}.primary{background:#61d7ff;color:#071118;font-weight:850}.danger{background:#48252b}.hide{display:none}.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.kpi{background:#0f151d;border:1px solid #2a3745;border-radius:12px;padding:10px}.kpi b{display:block;font-size:23px}.cricket{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cricket div{background:#0f151d;border:1px solid #2a3745;border-radius:8px;padding:8px 2px;text-align:center}.mark{font-size:18px}.row{display:flex;gap:8px}.row>*{flex:1}label{display:block;color:#98a5b4;font-size:12px;margin:9px 0 4px}input,select{width:100%;background:#0d141c;color:#fff;border:1px solid #2a3745;border-radius:10px;padding:11px}.log{max-height:260px;overflow:auto}.log div{padding:7px 0;border-bottom:1px solid #24303d;font-size:12px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#e8f7ff;color:#071118;padding:10px 14px;border-radius:999px;font-weight:750;display:none;z-index:9}
+@media(min-width:700px){.players{grid-template-columns:repeat(4,1fr)}.nums{grid-template-columns:repeat(10,1fr)}.kpis{grid-template-columns:repeat(4,1fr)}}
+</style></head>
+<body><div class="app">
+<div class="head"><div><div class="title">🎯 Darts Score</div><div class="muted">PWA — installable sur iPhone</div></div><button id="install" class="hide">＋ Installer</button></div>
 <div class="tabs"><button class="active" data-tab="game">🎯 Partie</button><button data-tab="stats">📊 Stats</button><button data-tab="settings">⚙️ Réglages</button></div>
-<section id="game"><div class="card"><div class="between"><div><b id="mode"></b><div class="muted" id="round"></div></div><div><div class="checkout" id="checkout"></div><div class="muted" id="target"></div></div></div></div>
-<div class="score-strip" id="scoreStrip"></div><div class="players" id="players"></div>
-<div class="card turn"><div class="between"><b>Tour de <span id="activeName"></span></b><button id="undo" class="ghost">↩ Annuler</button></div><div class="darts" id="darts"></div>
-<div class="mult" id="mult"><button data-m="1" class="selected">S</button><button data-m="2">D</button><button data-m="3">T</button><button data-m="0">Miss</button></div>
-<div class="nums" id="nums"></div><div class="actions"><button id="clear">Effacer / Retour</button></div><div class="hint" id="hint"></div></div>
-<div class="card"><div class="between"><b>Historique de la partie</b><button id="newFromGame" class="ghost">Nouvelle partie</button></div><div class="log" id="log"></div></div></section>
-<section id="stats" class="hide"><div class="card"><h3>Statistiques de la partie</h3><div class="kpis" id="kpis"></div><div id="statTable"></div></div></section>
-<section id="settings" class="hide"><div class="card"><h3>Réglages</h3><p class="muted">Les réglages de la partie en cours sont conservés. Pour modifier le type de jeu, utilise « Nouvelle partie ».</p><div class="actions"><button id="export">Exporter la partie</button><button id="resetData" class="danger">Réinitialiser</button></div></div></section>
-</div></div>
-<div id="finishModal" class="modal hide"><div class="modal-card"><div class="muted">PARTIE TERMINÉE</div><div id="winnerTitle" class="winner"></div><div id="resultList" class="result-list"></div><div id="finishStats"></div><div class="actions"><button id="again" class="primary">🔄 Recommencer</button><button id="changeGame">🎮 Changer de jeu</button></div></div></div>
-<div id="toast" class="toast"></div>
-<script src="app.js"></script>
-</body></html>
+<section id="game">
+<div class="card"><div class="row"><div><b id="mode">501</b><div class="muted" id="round"></div></div><div style="text-align:right"><b id="checkout"></b><div class="muted" id="target"></div></div></div></div>
+<div class="players" id="players"></div>
+<div class="card turn"><b>Tour de <span id="activeName"></span></b><div class="darts" id="darts"></div>
+<div class="mult" id="mult"><button data-m="1" class="sel">S</button><button data-m="2">D</button><button data-m="3">T</button><button data-m="25">Bull</button><button data-m="0">Miss</button></div>
+<div class="nums" id="nums"></div><div class="actions"><button class="primary" id="validate">Valider</button><button id="clear">Effacer</button></div></div>
+<div class="card"><b>Historique</b><div class="log" id="log"></div></div>
+</section>
+<section id="stats" class="hide"><div class="card"><h3>Statistiques</h3><div class="kpis" id="kpis"></div><div id="statTable"></div></div></section>
+<section id="settings" class="hide"><div class="card"><h3>Nouvelle partie</h3>
+<label>Mode</label><select id="newMode"><option>301</option><option selected>501</option><option>701</option><option value="cricket">Cricket</option><option value="shanghai">Shanghai V</option></select>
+<label>Joueurs — séparés par des virgules</label><input id="newNames" value="Joueur 1,Joueur 2">
+<label>Sortie X01</label><select id="finish"><option value="double">Double Out</option><option value="single">Simple Out</option></select>
+<div class="actions"><button class="primary" id="newGame">Nouvelle partie</button><button id="export">Exporter</button></div>
+<p class="muted">Shanghai V : manches 1 à 5. Un Shanghai (simple + double + triple sur la cible) gagne immédiatement.</p></div>
+</section></div><div id="toast" class="toast"></div>
+<script src="app.js"></script></body></html>
