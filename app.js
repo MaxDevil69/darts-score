@@ -95,29 +95,61 @@ function randomTrainingTarget(){const pool=['T20','T19','T18','T17','T16','T15',
 function finishGame(reason){save();render();$('#winnerTitle').textContent=S.winner?`🏆 ${S.winner.name} gagne !`:'🏆 Partie terminée';const sorted=[...S.players].sort((a,b)=>isX()?(b.setWins-a.setWins||b.legWins-a.legWins||b.score-a.score):(b.score-a.score));$('#resultList').innerHTML=sorted.map((p,i)=>`<div class="result"><span>${i+1}. ${escapeHtml(p.name)}</span><strong>${isX()?`${p.setWins} set · ${p.legWins} leg`:S.type==='cricket'?`${p.score} pts`:`${p.score} pts`}</strong></div>`).join('')+`<div class="muted">${escapeHtml(reason)}</div>`;$('#finishStats').innerHTML=gameSummary();$('#finishModal').classList.remove('hide')}
 function gameSummary(){return`<div class="kpis">${S.players.map(p=>`<div class="kpi"><span class="muted">${escapeHtml(p.name)}</span><b>${p.darts?((p.total/p.darts)*3).toFixed(1):'0.0'}/3</b><small class="muted">${p.darts} flèches · ${p.highestTurn} max · ${p.busts} bust</small></div>`).join('')}</div>`}
 function closeFinish(){$('#finishModal').classList.add('hide')}
-function checkoutRecommendation(score){
- if(!isX()||score<2||score>170)return '';
+function checkoutDarts(){
  const darts=[];
- for(let v=1;v<=20;v++){darts.push({v,m:1,label:`S${v}`,value:v});darts.push({v,m:2,label:`D${v}`,value:v*2});darts.push({v,m:3,label:`T${v}`,value:v*3})}
- darts.push({v:25,m:25,label:'Bull',value:25});
- const candidates=[];
- const add=(arr)=>{const sum=arr.reduce((a,d)=>a+d.value,0);if(sum!==score)return;const last=arr[arr.length-1];if((S.finish||finish)==='double'&&(last.m!==2&&last.m!==25))return;candidates.push(arr)};
+ for(let v=1;v<=20;v++){
+   darts.push({v,m:1,label:`S${v}`,value:v});
+   darts.push({v,m:2,label:`D${v}`,value:v*2});
+   darts.push({v,m:3,label:`T${v}`,value:v*3});
+ }
+ darts.push({v:25,m:25,label:'Bull',value:50});
+ return darts;
+}
+function checkoutRecommendation(score, maxDarts=3){
+ if(!isX()||score<2||score>170||maxDarts<1)return '';
+ const darts=checkoutDarts(), candidates=[];
+ const add=arr=>{
+   if(arr.length>maxDarts)return;
+   const sum=arr.reduce((a,d)=>a+d.value,0);
+   if(sum!==score)return;
+   const last=arr[arr.length-1];
+   if((S.finish||finish)==='double'&&(last.m!==2&&last.m!==25))return;
+   candidates.push(arr);
+ };
  for(const a of darts)add([a]);
- for(const a of darts)for(const b of darts)add([a,b]);
- for(const a of darts)for(const b of darts)for(const c of darts)add([a,b,c]);
- if(!candidates.length)return OUTS[score]||'';
+ if(maxDarts>=2)for(const a of darts)for(const b of darts)add([a,b]);
+ if(maxDarts>=3)for(const a of darts)for(const b of darts)for(const c of darts)add([a,b,c]);
+ if(!candidates.length)return '';
  candidates.sort((a,b)=>{
-   const ad16=a.at(-1).label==='D16'?1:0,bd16=b.at(-1).label==='D16'?1:0;
+   const ad16=a.at(-1).label==='D16'?1:0, bd16=b.at(-1).label==='D16'?1:0;
    if(ad16!==bd16)return bd16-ad16;
    if(a.length!==b.length)return a.length-b.length;
-   const av=a.reduce((x,d)=>x+d.value,0),bv=b.reduce((x,d)=>x+d.value,0);
-   return bv-av;
+   const at=a.filter(d=>d.m===3).length, bt=b.filter(d=>d.m===3).length;
+   if(at!==bt)return bt-at;
+   return b.reduce((x,d)=>x+d.value,0)-a.reduce((x,d)=>x+d.value,0);
  });
  return candidates[0].map(d=>d.label).join(' → ');
 }
-function render(){if(!S)return;showMain();$('#mode').textContent=typeLabel();$('#round').textContent=S.type==='shanghai'?`Manche ${S.target}/20`:S.type==='training'?'Entraînement':`Tour ${S.round}`;$('#activeName').textContent=S.players[S.active]?.name||'';const ap=S.players[S.active];const rec=isX()?(checkoutRecommendation(ap.score)||''):' ';$('#checkout').textContent=rec;$('#target').textContent=S.type==='shanghai'?`Manche ${S.target} — Tout sur le ${S.target}`:isX()?`${S.doubleIn?'Double In · ':''}${S.finish==='double'?'Double Out':'Simple Out'}${isKiller()?' · 🔥 Killer':''}`:S.type==='training'?`Cible : ${S.trainingTarget||randomTrainingTarget()}`:'';$('#activeMeta').textContent=S.type==='shanghai'?`🎯 Tout sur le ${S.target}`:isX()?`${S.doubleIn&&!ap.started?'Double In à faire · ':''}${ap.setWins} set · ${ap.legWins} leg`:'À toi de jouer';$('#scoreStrip').innerHTML=S.players.map((p,i)=>`<div class="score-mini ${i===S.active?'active':''}"><div class="mini-name">${escapeHtml(p.name)}</div><div class="mini-score">${p.score}</div><div class="mini-turn">${i===S.active?'🎯 À toi':''}</div></div>`).join('');if($('#players'))$('#players').innerHTML='';$('#darts').innerHTML=S.dartsInTurn.map((d,i)=>`<span class="chip">${i+1}. ${d.label}</span>`).join('');$('#log').innerHTML=S.log.map(x=>`<div>${escapeHtml(x)}</div>`).join('');$('#hint').innerHTML=hint();$('#undo').disabled=!undoStack.length;renderStats();save()}
+function turnCountedScore(){
+ if(!S||!isX())return 0;
+ const p=S.players[S.active],ds=S.dartsInTurn||[];
+ if(!ds.length)return 0;
+ if(S.doubleIn&&!p.started){
+   const idx=ds.findIndex(d=>d.m===2||d.m===25);
+   return idx<0?0:ds.slice(idx).reduce((a,d)=>a+dartValue(d),0);
+ }
+ return ds.reduce((a,d)=>a+dartValue(d),0);
+}
+function liveCheckoutRecommendation(){
+ if(!S||!isX()||S.finished)return '';
+ const p=S.players[S.active], remainingDarts=3-(S.dartsInTurn||[]).length;
+ if(remainingDarts<=0)return '';
+ const remainingScore=p.score-turnCountedScore();
+ return checkoutRecommendation(remainingScore,remainingDarts);
+}
+function render(){if(!S)return;showMain();$('#mode').textContent=typeLabel();$('#round').textContent=S.type==='shanghai'?`Manche ${S.target}/20`:S.type==='training'?'Entraînement':`Tour ${S.round}`;$('#activeName').textContent=S.players[S.active]?.name||'';const ap=S.players[S.active];const rec=isX()?((S.dartsInTurn&&S.dartsInTurn.length)?(liveCheckoutRecommendation()||'—'):(checkoutRecommendation(ap.score,3)||'')):' ';$('#checkout').textContent=rec;$('#target').textContent=S.type==='shanghai'?`Manche ${S.target} — Tout sur le ${S.target}`:isX()?`${S.doubleIn?'Double In · ':''}${S.finish==='double'?'Double Out':'Simple Out'}${isKiller()?' · 🔥 Killer':''}`:S.type==='training'?`Cible : ${S.trainingTarget||randomTrainingTarget()}`:'';$('#activeMeta').textContent=S.type==='shanghai'?`🎯 Tout sur le ${S.target}`:isX()?`${S.doubleIn&&!ap.started?'Double In à faire · ':''}${ap.setWins} set · ${ap.legWins} leg`:'À toi de jouer';$('#scoreStrip').innerHTML=S.players.map((p,i)=>`<div class="score-mini ${i===S.active?'active':''}"><div class="mini-name">${escapeHtml(p.name)}</div><div class="mini-score">${p.score}</div><div class="mini-turn">${i===S.active?'🎯 À toi':''}</div></div>`).join('');if($('#players'))$('#players').innerHTML='';$('#darts').innerHTML=S.dartsInTurn.map((d,i)=>`<span class="chip">${i+1}. ${d.label}</span>`).join('');$('#log').innerHTML=S.log.map(x=>`<div>${escapeHtml(x)}</div>`).join('');$('#hint').innerHTML=hint();$('#undo').disabled=!undoStack.length;renderStats();save()}
 function cricketMarks(p){return`<div class="marks">${[20,19,18,17,16,15,25].map(n=>`<div class="mark"><b>${n===25?'B':n}</b><div class="hits">${p.marks[n]>=3?'✕✕✕':p.marks[n]===2?'✕✕':p.marks[n]===1?'✕':'·'}</div></div>`).join('')}</div>`}
-function hint(){if(isX()){if(S.doubleIn&&!S.players[S.active].started)return`🎯 Double In : les fléchettes avant le premier double/Bull sont perdues. Dès le double touché, les suivantes comptent. · Passage automatique après 3 fléchettes.`;return isKiller()?`🔥 Killer : si le joueur suivant fait exactement ${S.players[S.active].lastTurnScore??'le même score'}, son adversaire revient à ${S.baseScore}.`: `Checkout conseillé : ${checkoutRecommendation(S.players[S.active].score)||'—'} · Passage automatique après 3 fléchettes.`}if(S.type==='cricket')return'Ferme 15, 16, 17, 18, 19, 20 et Bull avec 3 marques. Les points supplémentaires comptent tant qu’un adversaire n’a pas fermé la cible.';if(S.type==='shanghai')return`Manche ${S.target} – Tout sur le ${S.target}. Shanghai = simple + double + triple dans la même volée.`;return`🎯 Cible ${S.trainingTarget||'—'} · travaille la régularité et les checkouts.`}
+function hint(){if(isX()){if(S.doubleIn&&!S.players[S.active].started)return`🎯 Double In : les fléchettes avant le premier double/Bull sont perdues. Dès le double touché, les suivantes comptent. · Passage automatique après 3 fléchettes.`;return isKiller()?`🔥 Killer : si le joueur suivant fait exactement ${S.players[S.active].lastTurnScore??'le même score'}, son adversaire revient à ${S.baseScore}.`: `Checkout conseillé : ${(S.dartsInTurn&&S.dartsInTurn.length)?(liveCheckoutRecommendation()||'—'):(checkoutRecommendation(S.players[S.active].score,3)||'—')} · Passage automatique après 3 fléchettes.`}if(S.type==='cricket')return'Ferme 15, 16, 17, 18, 19, 20 et Bull avec 3 marques. Les points supplémentaires comptent tant qu’un adversaire n’a pas fermé la cible.';if(S.type==='shanghai')return`Manche ${S.target} – Tout sur le ${S.target}. Shanghai = simple + double + triple dans la même volée.`;return`🎯 Cible ${S.trainingTarget||'—'} · travaille la régularité et les checkouts.`}
 function renderStats(){const ps=S.players,totalD=ps.reduce((a,p)=>a+p.darts,0),totalT=ps.reduce((a,p)=>a+p.turns,0),points=ps.reduce((a,p)=>a+p.total,0),best=Math.max(...ps.map(p=>p.darts?(p.total/p.darts)*3:0));$('#kpis').innerHTML=`<div class="kpi"><span class="muted">Volées</span><b>${totalT}</b></div><div class="kpi"><span class="muted">Fléchettes</span><b>${totalD}</b></div><div class="kpi"><span class="muted">Points lancés</span><b>${points}</b></div><div class="kpi"><span class="muted">Meilleure moyenne</span><b>${best.toFixed(1)}</b></div>`;$('#statTable').innerHTML=`<table class="table"><thead><tr><th>Joueur</th><th>Moy./3</th><th>Flèches</th><th>Volées</th><th>Max</th><th>Bust</th><th>Checkouts</th></tr></thead><tbody>${ps.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${p.darts?((p.total/p.darts)*3).toFixed(1):'0.0'}</td><td>${p.darts}</td><td>${p.turns}</td><td>${p.highestTurn}</td><td>${p.busts}</td><td>${p.checkouts}</td></tr>`).join('')}</tbody></table>`}
 function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.display='none',1900)}
 function exportGame(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download=`darts-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)}
