@@ -32,7 +32,39 @@ function syncPlayerMode(){const solo=soloSelected();$('#addPlayer').classList.to
 function label(v,m){if(m===0)return'Miss';if(v===25&&m===2)return'Bull';if(v===25&&m===3)return'T25';return(m===3?'T':m===2?'D':'S')+v}
 function dartValue(d){return d.m===0?0:d.m===25?25:d.v*d.m}
 function pushUndo(){undoStack.push(JSON.stringify(S));if(undoStack.length>100)undoStack.shift()}
-function addDart(v){if(!S||S.finished||S.dartsInTurn.length>=3)return;if(S.type==='shanghai'&&v!==S.target&&v!==0&&v!==25){toast(`Manche ${S.target} : tout sur le ${S.target}`);return}if(S.type==='training'&&v===0){/* miss is allowed */}S.dartsInTurn.push({v,m:mult,label:label(v,mult)});save();render();if(S.dartsInTurn.length===3){clearTimeout(autoTimer);autoTimer=setTimeout(()=>{if(S&&!S.finished&&S.dartsInTurn.length===3)submit()},120)}}
+function addDart(v){
+ if(!S||S.finished||S.dartsInTurn.length>=3)return;
+ if(S.type==='shanghai'&&v!==S.target&&v!==0&&v!==25){toast(`Manche ${S.target} : tout sur le ${S.target}`);return}
+ if(S.type==='training'&&v===0){/* miss is allowed */}
+ S.dartsInTurn.push({v,m:mult,label:label(v,mult)});
+ save();render();
+ // En X01, une partie se termine dès que le joueur atteint 0 :
+ // il n'a pas à saisir les fléchettes restantes comme MISS.
+ if(isX()&&canFinishCurrentTurn()){
+   clearTimeout(autoTimer);
+   submit();
+   return;
+ }
+ if(S.dartsInTurn.length===3){
+   clearTimeout(autoTimer);
+   autoTimer=setTimeout(()=>{if(S&&!S.finished&&S.dartsInTurn.length===3)submit()},120)
+ }
+}
+function canFinishCurrentTurn(){
+ if(!S||!isX()||S.finished||!S.dartsInTurn.length)return false;
+ const p=S.players[S.active];
+ const ds=S.dartsInTurn;
+ let counted=ds.reduce((a,d)=>a+dartValue(d),0);
+ if(S.doubleIn&&!p.started){
+   const idx=ds.findIndex(d=>d.m===2||d.m===25);
+   if(idx<0)return false;
+   counted=ds.slice(idx).reduce((a,d)=>a+dartValue(d),0);
+ }
+ const after=p.score-counted;
+ if(after!==0)return false;
+ const last=ds[ds.length-1];
+ return S.finish==='single'||!!(last&&(last.m===2||last.m===25));
+}
 function undo(){if(!undoStack.length){toast('Rien à annuler');return}S=JSON.parse(undoStack.pop());save();render();toast('Dernière volée annulée')}
 function clearTurn(){if(!S)return;if(S.dartsInTurn.length){S.dartsInTurn=[];save();render();toast('Volée en cours effacée');return}undo()}
 function log(t){if(!S)return;S.log.unshift(t);S.log=S.log.slice(0,250);save();renderLogOnly()}
