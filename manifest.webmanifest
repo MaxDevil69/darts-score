@@ -1,0 +1,17 @@
+{
+  "name": "Darts Score",
+  "short_name": "Darts",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0b1017",
+  "theme_color": "#0d1117",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
